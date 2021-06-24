@@ -32,7 +32,7 @@ metadata:
 spec:
   scaleTargetRef:
     name: {{ template "kubernetes-ingress.fullname" . }}
-  pollingInterval: {{ .Values.contoller.keda.pollingInterval }}
+  pollingInterval: {{ .Values.controller.keda.pollingInterval }}
   cooldownPeriod: {{ .Values.controller.keda.cooldownPeriod }}
   minReplicaCount: {{ .Values.controller.keda.minReplicas }}
   maxReplicaCount: {{ .Values.controller.keda.maxReplicas }}
