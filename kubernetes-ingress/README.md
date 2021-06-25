@@ -213,10 +213,16 @@ And to install:
 
 ```console
 helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm repo add kedacore https://kedacore.github.io/charts
+
+helm repo update
 
 helm install prometheus prometheus-community/kube-prometheus-stack \
   --set prometheus.prometheusSpec.podMonitorSelectorNilUsesHelmValues=false \
   --set prometheus.prometheusSpec.serviceMonitorSelectorNilUsesHelmValues=false
+
+kubectl create namespace keda
+helm install keda kedacore/keda --namespace keda
 
 helm install mytest haproxytech/kubernetes-ingress -f mykeda.yaml
 ```
