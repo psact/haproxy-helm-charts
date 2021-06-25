@@ -1,6 +1,0 @@
-controller:
-  kind: Deployment
-  keda:
-    enabled: true
-    minReplicas: 1
-    maxReplicas: 5
