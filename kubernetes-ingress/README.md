@@ -178,7 +178,7 @@ helm repo add prometheus-community https://prometheus-community.github.io/helm-c
 helm install prometheus prometheus-community/kube-prometheus-stack \
   --set prometheus.prometheusSpec.podMonitorSelectorNilUsesHelmValues=false \
   --set prometheus.prometheusSpec.serviceMonitorSelectorNilUsesHelmValues=false
-  
+
 helm install my-ingress haproxytech/kubernetes-ingress \
   --set controller.serviceMonitor.enabled=true
 ```
@@ -204,10 +204,16 @@ controller:
       - type: prometheus
         metadata:
           serverAddress: http://10.96.206.247:9090
-          metricName: haproxy_process_idle_time_percent
-          threshold: "50"
-          query: avg(100-avg_over_time(haproxy_process_idle_time_percent{container="kubernetes-ingress-controller",service="mytest-kubernetes-ingress"}[2m]))
+          metricName: haproxy_frontend_current_sessions
+          threshold: "100"
+          query: sum(rate(haproxy_frontend_current_sessions{proxy="http"}[2m]))
 ```
+
+Note: Other options to trigger scaling can be found in Prometheus [native exporter documentation](https://github.com/haproxy/haproxy/blob/master/addons/promex/README), but some ideas are:
+
+- `haproxy_process_idle_time_percent`
+- `haproxy_frontend_current_sessions`
+- `haproxy_backend_current_queue`
 
 And to install:
 
