@@ -122,12 +122,12 @@ spec:
           {{- end }}
           {{- end }}
           ports:
-          {{- range $key, $value := .Values.containerPorts }}
+          {{- range $key, $value := .Values.ports }}
             - name: {{ $key }}
-              containerPort: {{ $value }}
+              containerPort: {{ $value.container }}
               protocol: TCP
               {{- if $useHostPort }}
-              hostPort: {{ index $hostPorts $key | default $value }}
+              hostPort: {{ $value.container }}
               {{- end }}
           {{- end }}
           {{- if .Values.livenessProbe.enabled }}

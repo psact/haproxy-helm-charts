@@ -6,22 +6,18 @@ Your HAProxy app is of a "{{ .Values.kind }}" kind.
 
 Service ports mapped are:
 {{- if eq .Values.kind "Deployment" }}
-{{- range $key, $value := .Values.containerPorts }}
-  - name: {{ $key }}
-    containerPort: {{ $value }}
-    protocol: TCP
+{{- range $key, $value := .Values.ports }}
+  {{ $key }}: service[{{ $value.service }}] -> container[{{ $value.container }}]
 {{- end }}
 {{- end }}
 {{- if eq .Values.kind "DaemonSet" }}
-{{- $hostPorts := .Values.daemonset.hostPorts -}}
 {{- $useHostPort := .Values.daemonset.useHostPort -}}
-{{- range $key, $value := .Values.containerPorts }}
-  - name: {{ $key }}
-    containerPort: {{ $value }}
-    protocol: TCP
-    {{- if $useHostPort }}
-    hostPort: {{ index $hostPorts $key | default $value }}
-    {{- end }}
+{{- range $key, $value := .Values.ports }}
+  {{- if $useHostPort }}
+  {{ $key }}: service[{{ $value.service }}] -> hostport[{{ $value.container }}]
+  {{- else }}
+  {{ $key }}: service[{{ $value.service }}] -> container[{{ $value.container }}]
+  {{- end }}
 {{- end }}
 {{- end }}
 
@@ -31,15 +27,8 @@ securityContext:
   enabled: true
   runAsUser: 1000
   runAsGroup: 1000
-initContainers:
-  - name: sysctl
-    image: "busybox:musl"
-    command:
-      - /bin/sh
-      - -c
-      - sysctl -w net.ipv4.ip_unprivileged_port_start=0
-    securityContext:
-      privileged: true
+
+And only listen on ports >=1024
 
 Node IP can be found with:
   $ kubectl --namespace {{ .Release.Namespace }} get nodes -o jsonpath="{.items[0].status.addresses[1].address}"

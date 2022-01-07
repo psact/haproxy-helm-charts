@@ -120,10 +120,6 @@ startupProbe:
 daemonset:
   useHostNetwork: false   # also modify dnsPolicy accordingly
   useHostPort: false
-  hostPorts:
-    http: 80
-    https: 443
-    stat: 1024
 
 ## Init Containers
 ## ref: https://kubernetes.io/docs/concepts/workloads/pods/init-containers/
@@ -151,10 +147,17 @@ existingImagePullSecret: null
 
 ## Container listener port configuration
 ## ref: https://kubernetes.io/docs/concepts/services-networking/connect-applications-service/
-containerPorts:   # has to match hostPorts when useHostNetwork is true
-  http: 80
-  https: 443
-  stat: 1024
+
+ports:
+  http:
+    service: 80
+    container: 8080
+  https:
+    service: 443
+    container: 8443
+  stat:
+    service: 1024
+    container: 1024
 
 ## Deployment strategy definition
 ## ref: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#strategy
@@ -210,7 +213,7 @@ config: |
     timeout server 60s
 
   frontend fe_main
-    bind :80
+    bind :8080
     default_backend be_main
 
   backend be_main
@@ -298,7 +301,7 @@ podSecurityContext: {}
 ## Container Security Context
 ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
 securityContext:
-  enabled: false
+  enabled: true
   runAsUser: 1000
   runAsGroup: 1000
 

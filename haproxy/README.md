@@ -220,23 +220,55 @@ extraVolumeMounts:
     mountPath: /tmp
 ```
 
+## Mapping service ports to container ports
+This is useful to run the container on a non-privileged port, while having a 'privileged' port exposed externally
+```yaml
+ports:
+  http:
+    service: 80
+    container: 8080
+  https:
+    service: 443
+    container: 8443
+  stat:
+    service: 1024
+    container: 1024
+
+config: |
+  global
+    log stdout format raw local0
+    maxconn 1024
+  defaults
+    log global
+    timeout client 60s
+    timeout connect 60s
+    timeout server 60s
+  frontend fe_main
+    bind :8080
+    default_backend be_main
+  backend be_main
+    server web1 127.0.0.1:8080 check
+```
+
 ## Installing as non-root with binding to privileged ports
 
 To be able to bind to privileged ports such as tcp/80 and tcp/443 without root privileges (UID and GID are set to 1000 in the example, as HAProxy Docker image has UID/GID of 1000 reserved for HAProxy), there is a special workaround required as `NET_BIND_SERVICE` capability is [not propagated](https://github.com/kubernetes/kubernetes/issues/56374), so we need to use `initContainers` feature as well:
 
 ```yaml
 kind: DaemonSet
-containerPorts:
-  http: 80
-  https: 443
-  stat: 1024
+ports:
+  http:
+    service: 80
+    container: 80
+  https:
+    service: 443
+    container: 443
+  stat:
+    service: 1024
+    container: 1024
 daemonset:
   useHostNetwork: true
   useHostPort: true
-  hostPorts:
-    http: 80
-    https: 443
-    stat: 1024
 config: |
   global
     log stdout format raw local0

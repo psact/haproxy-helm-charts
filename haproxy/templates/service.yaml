@@ -41,12 +41,12 @@ spec:
   loadBalancerSourceRanges:
   {{- toYaml . | nindent 2 }}
   {{- end }}
-  {{- with .Values.containerPorts }}
+  {{- with .Values.ports }}
   ports:
-  {{- range $key, $port := . }}
+  {{- range $key, $mapping := . }}
   - name: {{ $key }}
     protocol: TCP
-    port: {{ $port }}
+    port: {{ $mapping.service }}
     targetPort: {{ $key }}
   {{- end }}
   {{- end }}
